@@ -48,8 +48,8 @@ ENV CPP="clang-4.0 -E"
 ENV LINK="clang++-4.0 -static-libstdc++ -static-libgcc -L/compat"
 
 # Force clang 
-RUN ln -s /usr/bin/clang-4.0 /usr/bin/gcc && \
-	ln -s /usr/bin/clang++-4.0 /usr/bin/g++
+RUN ln -sf /usr/bin/clang-4.0 /usr/bin/gcc && \
+	ln -sf /usr/bin/clang++-4.0 /usr/bin/g++
 
 # Prepare static libs 
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/lib/gcc/x86_64-linux-gnu/6/libstdc++.a /compat/libstdc++.a
