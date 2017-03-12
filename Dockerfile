@@ -11,7 +11,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 
 # add clang repo 
 RUN echo deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main > /etc/apt/sources.list.d/llvm.list && \
-	wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add
+	wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add
 
 # install compilation dependencies
 RUN apt-get update && apt-get install -y \
