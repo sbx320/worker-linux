@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
 	clang++-4.0 \
 	clang-tidy-4.0 \
 	make \
+	zsh \
 	libssl-dev && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
