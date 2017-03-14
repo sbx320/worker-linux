@@ -19,11 +19,12 @@ RUN apt-get update && apt-get install -y \
 	g++-6 \
 	clang-4.0 \
 	clang++-4.0 \
+	clang-tidy-4.0 \
 	make \
 	libssl-dev && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Build OpenSSL statically 
+# Build static OpenSSL
 ENV SSL_VER=1.0.2j \
     PREFIX=/usr/local \
     PATH=/usr/local/bin:$PATH
@@ -48,8 +49,8 @@ ENV CPP="clang-4.0 -E"
 ENV LINK="clang++-4.0 -static-libstdc++ -static-libgcc -L/compat"
 
 # Force clang 
-RUN ln -sf /usr/bin/clang-4.0 /usr/bin/gcc && \
-	ln -sf /usr/bin/clang++-4.0 /usr/bin/g++
+RUN ln -sf /usr/bin/clang-4.0 /usr/bin/cc && \
+	ln -sf /usr/bin/clang++-4.0 /usr/bin/cpp
 
 # Prepare static libs 
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/lib/gcc/x86_64-linux-gnu/6/libstdc++.a /compat/libstdc++.a
