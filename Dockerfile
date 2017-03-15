@@ -68,5 +68,6 @@ RUN ssh-keyscan -H gitlab.nanos.io >> ~/.ssh/known_hosts
 
 CMD echo "$ID_RSA" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa && \
    unset ID_RSA && unset BUILDMASTER && unset BUILDMASTER_PORT && unset WORKERNAME && unset WORKERPASS && \
+   rm -rf twistd.pid && \
    /usr/local/bin/dumb-init twistd -ny buildbot.tac
 
