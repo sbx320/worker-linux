@@ -1,5 +1,4 @@
-FROM buildbot/buildbot-worker:master
-user root
+FROM ubuntu:16.04
 ADD . /compat
 
 RUN apt-get update && apt-get install -y \
@@ -61,13 +60,3 @@ RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/local/lib/libcrypto
 
 # Get breakpad symbol dumper 
 RUN wget https://github.com/sbx320/binaries/blob/master/dump_syms?raw=true -O /usr/bin/dump_syms && chmod +x /usr/bin/dump_syms
-
-user buildbot 
-RUN mkdir ~/.ssh
-RUN ssh-keyscan -H gitlab.nanos.io >> ~/.ssh/known_hosts
-
-CMD echo "$ID_RSA" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa && \
-   unset ID_RSA && unset BUILDMASTER && unset BUILDMASTER_PORT && unset WORKERNAME && unset WORKERPASS && \
-   rm -rf twistd.pid && \
-   /usr/local/bin/dumb-init twistd -ny buildbot.tac
-
