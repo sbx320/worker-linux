@@ -11,16 +11,16 @@ RUN apt-get update && apt-get install -y \
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 
 # add clang repo 
-RUN echo deb http://apt.llvm.org/zesty/ llvm-toolchain-zesty-4.0 main > /etc/apt/sources.list.d/llvm.list && \
+RUN echo deb http://apt.llvm.org/zesty/ llvm-toolchain-zesty main > /etc/apt/sources.list.d/llvm.list && \
 	wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add
 
 # install compilation dependencies
 RUN apt-get update && apt-get install -y \
 	gcc-7 \
 	g++-7 \
-	clang-4.0 \
-	clang++-4.0 \
-	clang-tidy-4.0 \
+	clang-5.0 \
+	clang++-5.0 \
+	clang-tidy-5.0 \
 	ninja-build \
 	make \
 	zsh \
@@ -33,7 +33,7 @@ ENV SSL_VER=1.0.2j \
     PREFIX=/usr/local \
     PATH=/usr/local/bin:$PATH
 
-ENV CC="clang-4.0 -fPIC"
+ENV CC="clang-5.0 -fPIC"
 
 RUN curl -sL http://www.openssl.org/source/openssl-$SSL_VER.tar.gz | tar xz && \
     cd openssl-$SSL_VER && \
@@ -47,15 +47,15 @@ ENV OPENSSL_LIB_DIR=$PREFIX/lib \
     OPENSSL_STATIC=1
 
 # Setup compilers
-ENV CXX="clang++-4.0 -fPIC -std=c++1z -i/compat/glibc_version.h"
-ENV CC="clang-4.0 -fPIC -i/compat/glibc_version.h"
-ENV CPP="clang-4.0 -E"
-ENV LINK="clang++-4.0 -static-libstdc++ -static-libgcc -L/compat"
+ENV CXX="clang++-5.0 -fPIC -std=c++1z -i/compat/glibc_version.h"
+ENV CC="clang-5.0 -fPIC -i/compat/glibc_version.h"
+ENV CPP="clang-5.0 -E"
+ENV LINK="clang++-5.0 -static-libstdc++ -static-libgcc -L/compat"
 
 # Force clang 
-RUN ln -sf /usr/bin/clang-4.0 /usr/bin/cc && \
-	ln -sf /usr/bin/clang++-4.0 /usr/bin/cpp && \
-	ln -sf /usr/bin/clang++-4.0 /usr/bin/c++
+RUN ln -sf /usr/bin/clang-5.0 /usr/bin/cc && \
+	ln -sf /usr/bin/clang++-5.0 /usr/bin/cpp && \
+	ln -sf /usr/bin/clang++-5.0 /usr/bin/c++
 
 # Prepare static libs 
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/lib/gcc/x86_64-linux-gnu/6/libstdc++.a /compat/libstdc++.a
