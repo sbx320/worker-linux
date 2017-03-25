@@ -3,6 +3,8 @@ ADD . /compat
 
 RUN apt-get update && apt-get install -y \
 	software-properties-common \
+	ca-certificates \
+	git \
 	wget
 
 # add toolchain repo
