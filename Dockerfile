@@ -16,8 +16,8 @@ RUN echo deb http://apt.llvm.org/zesty/ llvm-toolchain-zesty main > /etc/apt/sou
 
 # install compilation dependencies
 RUN apt-get update && apt-get install -y \
-	gcc-7 \
-	g++-7 \
+	gcc-6 \
+	g++-6 \
 	clang-5.0 \
 	clang++-5.0 \
 	clang-tidy-5.0 \
