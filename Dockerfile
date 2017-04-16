@@ -1,5 +1,5 @@
 FROM ubuntu:17.04
-ADD . /compat
+ADD ./compat /compat
 
 RUN apt-get update && apt-get install -y \
 	software-properties-common \
@@ -16,15 +16,16 @@ RUN echo deb http://apt.llvm.org/zesty/ llvm-toolchain-zesty main > /etc/apt/sou
 
 # install compilation dependencies
 RUN apt-get update && apt-get install -y \
-	gcc-6 \
-	g++-6 \
-	clang-5.0 \
-	clang++-5.0 \
-	clang-tidy-5.0 \
+	clang-4.0 \
+	clang++-4.0 \
+	clang-tidy-4.0 \
 	ninja-build \
 	make \
 	zsh \
+	build-essential \
 	curl \
+	subversion \
+	cmake \
 	libssl-dev && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -33,33 +34,57 @@ ENV SSL_VER=1.0.2j \
     PREFIX=/usr/local \
     PATH=/usr/local/bin:$PATH
 
-ENV CC="clang-5.0 -fPIC"
-
 RUN curl -sL http://www.openssl.org/source/openssl-$SSL_VER.tar.gz | tar xz && \
     cd openssl-$SSL_VER && \
     ./Configure no-shared --prefix=$PREFIX --openssldir=$PREFIX/ssl no-zlib linux-x86_64 && \
     make depend 2> /dev/null && make -j$(nproc) && make install && \
     cd .. && rm -rf openssl-$SSL_VER
-
+	
 ENV OPENSSL_LIB_DIR=$PREFIX/lib \
     OPENSSL_INCLUDE_DIR=$PREFIX/include \
     OPENSSL_DIR=$PREFIX \
     OPENSSL_STATIC=1
 
-# Setup compilers
-ENV CXX="clang++-5.0 -fPIC -std=c++1z -i/compat/glibc_version.h"
-ENV CC="clang-5.0 -fPIC -i/compat/glibc_version.h"
-ENV CPP="clang-5.0 -E"
-ENV LINK="clang++-5.0 -static-libstdc++ -static-libgcc -L/compat"
+# Build libc++
+ENV CXX="clang++-4.0 -fPIC -i/compat/glibc_version.h"
+ENV CC="clang-4.0 -fPIC -i/compat/glibc_version.h"
+ENV CPP="clang-4.0 -E"
+ENV LINK="clang++-4.0 -L/compat"
 
+RUN mkdir /libcpp && \
+	cd /libcpp && \
+	svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm && \
+	cd llvm/projects && \
+	svn co http://llvm.org/svn/llvm-project/libcxx/trunk libcxx && \
+	svn co http://llvm.org/svn/llvm-project/libcxxabi/trunk libcxxabi && \
+	cd .. && \
+	mkdir build && \
+	cd build && \
+	cmake -G "Unix Makefiles" \ 
+        -DLIBCXX_ENABLE_SHARED=NO \
+        -DLIBCXX_INCLUDE_BENCHMARKS=NO \
+        -DLIBCXX_ENABLE_STATIC=YES \             
+        -DLIBCXXABI_ENABLE_SHARED=NO \             
+        -DLIBCXXABI_ENABLE_STATIC=YES \           
+		-DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
+        -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=YES \
+		-DCMAKE_INSTALL_PREFIX=/usr/ \
+		/libcpp/llvm && \
+	make cxx && \
+	make install-cxx install-cxxabi && \
+	cp /libcpp/llvm/projects/libcxxabi/include/* /usr/include/c++/v1/ && \
+	rm -rf /libcpp
+	
+
+	
 # Force clang 
-RUN ln -sf /usr/bin/clang-5.0 /usr/bin/cc && \
-	ln -sf /usr/bin/clang++-5.0 /usr/bin/cpp && \
-	ln -sf /usr/bin/clang++-5.0 /usr/bin/c++
+ENV CXX="clang++-4.0 -I/usr/include/c++/v1 -nostdinc++ -stdlib=libc++ -fPIC -i/compat/glibc_version.h -L/usr/lib/ -lc++ -lc++experimental -lc++abi"
+ENV LINK="clang++-4.0 -stdlib=libc++ -static-libstdc++ -static-libgcc -L/compat"
+RUN ln -sf /usr/bin/clang-4.0 /usr/bin/cc && \
+	ln -sf /usr/bin/clang++-4.0 /usr/bin/cpp && \
+	ln -sf /usr/bin/clang++-4.0 /usr/bin/c++
 
 # Prepare static libs 
-RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/lib/gcc/x86_64-linux-gnu/6/libstdc++.a /compat/libstdc++.a
-RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/lib/gcc/x86_64-linux-gnu/6/libstdc++fs.a /compat/libstdc++fs.a
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/local/lib/libssl.a /compat/libssl.a
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/local/lib/libcrypto.a /compat/libcrypto.a
 
