@@ -1,5 +1,5 @@
 FROM ubuntu:17.04
-ADD ./compat /compat
+ADD . /compat
 
 RUN apt-get update && apt-get install -y \
 	software-properties-common \
