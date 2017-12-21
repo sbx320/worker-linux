@@ -5,20 +5,21 @@ RUN apt-get update && apt-get install -y \
 	software-properties-common \
 	ca-certificates \
 	git \
-	wget
+	wget \
+	ssh
 
 # add toolchain repo
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 
 # add clang repo 
-RUN echo deb http://apt.llvm.org/zesty/ llvm-toolchain-zesty main > /etc/apt/sources.list.d/llvm.list && \
+RUN echo deb http://apt.llvm.org/zesty/ llvm-toolchain-zesty-5.0 main > /etc/apt/sources.list.d/llvm.list && \
 	wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add
 
 # install compilation dependencies
 RUN apt-get update && apt-get install -y \
-	clang-4.0 \
-	clang++-4.0 \
-	clang-tidy-4.0 \
+	clang-5.0 \
+	clang++-5.0 \
+	clang-tidy-5.0 \
 	ninja-build \
 	make \
 	zsh \
@@ -46,10 +47,10 @@ ENV OPENSSL_LIB_DIR=$PREFIX/lib \
     OPENSSL_STATIC=1
 
 # Build libc++
-ENV CXX="clang++-4.0 -fPIC -i/compat/glibc_version.h"
-ENV CC="clang-4.0 -fPIC -i/compat/glibc_version.h"
-ENV CPP="clang-4.0 -E"
-ENV LINK="clang++-4.0 -L/compat"
+ENV CXX="clang++-5.0 -fPIC -i/compat/glibc_version.h"
+ENV CC="clang-5.0 -fPIC -i/compat/glibc_version.h"
+ENV CPP="clang-5.0 -E"
+ENV LINK="clang++-5.0 -L/compat"
 
 RUN mkdir /libcpp && \
 	cd /libcpp && \
@@ -78,11 +79,11 @@ RUN mkdir /libcpp && \
 
 	
 # Force clang 
-ENV CXX="clang++-4.0 -I/usr/include/c++/v1 -nostdinc++ -stdlib=libc++ -fPIC -i/compat/glibc_version.h -L/usr/lib/ -lc++ -lc++experimental -lc++abi"
-ENV LINK="clang++-4.0 -stdlib=libc++ -static-libstdc++ -static-libgcc -L/compat"
-RUN ln -sf /usr/bin/clang-4.0 /usr/bin/cc && \
-	ln -sf /usr/bin/clang++-4.0 /usr/bin/cpp && \
-	ln -sf /usr/bin/clang++-4.0 /usr/bin/c++
+ENV CXX="clang++-5.0 -I/usr/include/c++/v1 -nostdinc++ -stdlib=libc++ -fPIC -i/compat/glibc_version.h -L/usr/lib/ -lc++ -lc++experimental -lc++abi"
+ENV LINK="clang++-5.0 -stdlib=libc++ -static-libstdc++ -static-libgcc -L/compat"
+RUN ln -sf /usr/bin/clang-5.0 /usr/bin/cc && \
+	ln -sf /usr/bin/clang++-5.0 /usr/bin/cpp && \
+	ln -sf /usr/bin/clang++-5.0 /usr/bin/c++
 
 # Prepare static libs 
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/local/lib/libssl.a /compat/libssl.a
