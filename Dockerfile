@@ -75,15 +75,13 @@ RUN mkdir /libcpp && \
 	make install-cxx install-cxxabi && \
 	cp /libcpp/llvm/projects/libcxxabi/include/* /usr/include/c++/v1/ && \
 	rm -rf /libcpp
-	
 
-	
-# Force clang 
-ENV CXX="clang++-5.0 -I/usr/include/c++/v1 -nostdinc++ -stdlib=libc++ -fPIC -i/compat/glibc_version.h -L/usr/lib/ -lc++ -lc++experimental -lc++abi"
-ENV LINK="clang++-5.0 -stdlib=libc++ -static-libstdc++ -static-libgcc -L/compat"
 RUN ln -sf /usr/bin/clang-5.0 /usr/bin/cc && \
 	ln -sf /usr/bin/clang++-5.0 /usr/bin/cpp && \
 	ln -sf /usr/bin/clang++-5.0 /usr/bin/c++
+
+RUN ln -sf /usr/bin/clang-5.0 /usr/bin/clang && \
+	ln -sf /usr/bin/clang++-5.0 /usr/bin/clang++
 
 # Prepare static libs 
 RUN objcopy --redefine-syms=/compat/glibc_version.redef /usr/local/lib/libssl.a /compat/libssl.a
