@@ -1,0 +1,9 @@
+#ifndef WIN32
+#include <experimental/filesystem>
+namespace std::filesystem
+{
+    using namespace std::experimental::filesystem;
+}
+#else 
+static_assert(false, "This file should not be included on Windows")
+#endif
