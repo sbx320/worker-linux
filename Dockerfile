@@ -54,7 +54,7 @@ ENV OPENSSL_LIB_DIR=$PREFIX/lib \
     OPENSSL_STATIC=1
 
 # Build libc++
-ENV CXX="clang++ -fPIC -i/compat/glibc_version.h"
+ENV CXX="clang++ -fPIC -i/compat/glibc_version.h -I/compat"
 ENV CC="clang -fPIC -i/compat/glibc_version.h"
 ENV CPP="clang -E"
 ENV LINK="clang++ -L/compat"
