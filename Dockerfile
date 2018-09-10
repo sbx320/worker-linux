@@ -17,6 +17,7 @@ RUN echo deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-6.0 main > /etc/a
 # install compilation dependencies
 RUN apt-get update && apt-get install -y \
 	clang-6.0 \
+	clang-tidy-6.0 \
 	ninja-build \
 	make \
 	zsh \
